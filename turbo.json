@@ -1,0 +1,66 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "pom.xml",
+        "package.json",
+        "tsconfig*.json",
+        "vite.config.*",
+        "index.html",
+        "openapi.json"
+      ],
+      "outputs": [
+        "target/**",
+        "dist/**",
+        "src/schema.d.ts"
+      ]
+    },
+    "typecheck": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "package.json",
+        "tsconfig*.json",
+        "openapi.json"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "pom.xml",
+        "package.json"
+      ],
+      "outputs": [
+        "target/surefire-reports/**"
+      ]
+    },
+    "verify": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "src/**",
+        "pom.xml",
+        "package.json",
+        "tsconfig*.json",
+        "vite.config.*",
+        "openapi.json"
+      ],
+      "outputs": [
+        "target/**",
+        "dist/**",
+        "src/schema.d.ts"
+      ]
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "paths": {
+    "/api/info": {
+      "get": {
+        "tags": [
+          "Sistema"
+        ],
+        "summary": "Informações da API",
+        "description": "Nome da aplicação em execução.",
+        "operationId": "info",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InfoResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "InfoResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Nome da aplicação",
+            "example": "agro-api"
+          }
+        },
+        "description": "Informações básicas da API"
+      }
+    }
+  }
+}

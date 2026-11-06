@@ -1,0 +1,4 @@
+# Profile "local": logs em texto legível (ver logback-spring.xml).
+logging:
+  level:
+    br.com.gabrielriguiti.agro: DEBUG

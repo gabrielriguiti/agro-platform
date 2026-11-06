@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      # Sem cache do Turbo no CI: o Maven precisa rodar sempre (design do change foundation).
+      TURBO_FORCE: "true"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+          cache-dependency-path: apps/api/pom.xml
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Links da documentação
+        run: pnpm docs:check
+
+      # API (Maven: testes unitários, ArchUnit e *IT com Testcontainers) e web (typecheck, testes e build)
+      - name: Verificar tudo
+        run: pnpm verify

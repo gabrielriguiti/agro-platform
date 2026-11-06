@@ -1,0 +1,31 @@
+# Configuração base. Variáveis de ambiente (ADR-0003): DB_URL, DB_USER, DB_PASSWORD.
+# Os padrões abaixo são as credenciais de desenvolvimento local (agro/agro), as únicas permitidas no repositório.
+spring:
+  application:
+    name: agro-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/agro}
+    username: ${DB_USER:agro}
+    password: ${DB_PASSWORD:agro}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

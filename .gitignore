@@ -22,3 +22,4 @@ packages/*/dist/
 # Material de estudo e apresentação: nunca vai para o repositório público
 docs/estudo/
 .private/
+packages/api-client/src/schema.d.ts

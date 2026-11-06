@@ -1,0 +1,10 @@
+{
+  "name": "api",
+  "private": true,
+  "description": "Casca para o Turborepo orquestrar o Maven da API (ADR-0007). Também funciona direto: cd apps/api && mvn verify",
+  "scripts": {
+    "build": "mvn -q -B -DskipTests package",
+    "test": "mvn -q -B test",
+    "verify": "mvn -q -B verify"
+  }
+}
