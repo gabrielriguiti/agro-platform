@@ -23,6 +23,9 @@ public interface LaboratoryRepository {
     /** @return {@code true} se existir ao menos um produtor vinculado ao laboratório */
     boolean hasProducers(long id);
 
+    /** @return quantidade de produtores vinculados ao laboratório */
+    long countProducers(long id);
+
     /**
      * Remove o laboratório.
      *

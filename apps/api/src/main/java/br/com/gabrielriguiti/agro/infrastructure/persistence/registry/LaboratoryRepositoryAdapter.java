@@ -49,6 +49,11 @@ class LaboratoryRepositoryAdapter implements LaboratoryRepository {
     }
 
     @Override
+    public long countProducers(long id) {
+        return producers.countByLaboratoryId(id);
+    }
+
+    @Override
     public void deleteById(long id) {
         try {
             jpa.deleteById(id);

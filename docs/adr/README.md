@@ -17,3 +17,4 @@ Cada decisão técnica ou de arquitetura relevante vira um ADR neste diretório,
 | [0007](0007-monorepo-pnpm-turborepo-com-api-java.md) | Monorepo pnpm + Turborepo com API Java | aceito |
 | [0008](0008-agregados-referenciados-por-id-e-vinculo-da-propriedade.md) | Agregados referenciados por id e vínculo da propriedade ao produtor | aceito |
 | [0009](0009-identificacao-fiscal-como-value-object.md) | Identificação fiscal como Value Object | aceito |
+| [0010](0010-motor-financeiro-como-strategy-puro-com-taxas-configuraveis.md) | Motor financeiro como Strategy puro com taxas configuráveis | aceito |

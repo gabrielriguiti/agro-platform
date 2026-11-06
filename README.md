@@ -62,6 +62,35 @@ flowchart LR
 
 Regras (testadas em `ArchitectureTest`): `domain` só depende de Java padrão; `application` nunca depende de `infrastructure`; controllers não acessam a persistência; o motor financeiro não importa Spring.
 
+## Motor financeiro
+
+O valor é calculado por uma calculadora (Strategy) por natureza, em `application.financial`, sem Spring ([ADR-0010](docs/adr/0010-motor-financeiro-como-strategy-puro-com-taxas-configuraveis.md)). **As fórmulas são uma premissa**: o enunciado não as define e elas devem ser validadas com o negócio.
+
+| Natureza | Fórmula | Padrões (BRL) |
+|---|---|---|
+| Produtor | `diasDeVigência × comissãoDiária + propriedades × comissãoPorPropriedade` | 120,00 por dia; 50,00 por propriedade |
+| Propriedade | `taxaOperacional + taxaTerritorial` | 300,00; 150,00 |
+| Laboratório | `taxaOperacional + produtores × taxaTerritorialPorProdutor` | 500,00; 25,00 por produtor |
+
+Os dias de vigência são o intervalo entre `dataInicial` e `dataFinal` arredondado para cima (mínimo 1), e todo valor tem duas casas (`HALF_EVEN`).
+
+**Exemplo:** produtor com 5 dias de vigência e 2 propriedades = 5 × 120,00 + 2 × 50,00 = **700,00**. Um laboratório com 4 produtores = 500,00 + 4 × 25,00 = **600,00**; uma propriedade = 300,00 + 150,00 = **450,00**.
+
+```bash
+curl localhost:8080/api/financial/producers/10     # também: /properties/{id} e /laboratories/{id}
+# {"valor":700.00,"natureza":"PRODUCER","componentes":[{"nome":"dailyCommission","quantidade":5,"valorUnitario":120.00,"subtotal":600.00}, ...]}
+```
+
+As taxas mudam por configuração, sem recompilar (por exemplo, a variável `AGRO_FINANCIAL_PRODUCER_DAILY_COMMISSION=100.00`):
+
+| Propriedade | Padrão |
+|---|---|
+| `agro.financial.producer.daily-commission` / `.property-commission` | 120.00 / 50.00 |
+| `agro.financial.property.operational-fee` / `.territorial-fee` | 300.00 / 150.00 |
+| `agro.financial.laboratory.operational-fee` / `.territorial-fee-per-producer` | 500.00 / 25.00 |
+
+Para uma nova regra, implemente `FinancialCalculator` e declare-a como bean: o motor e as calculadoras existentes não mudam.
+
 ## Documentação e convenções
 
 - Decisões: [docs/adr/](docs/adr/README.md). Commits: [docs/commits.md](docs/commits.md). Specs: [openspec/](openspec/).

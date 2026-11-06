@@ -179,6 +179,7 @@ class RegistryPersistenceIT extends AbstractIntegrationTest {
         Laboratory lab = newLab("Lab FK");
         newProducer("Prod FK", lab.id());
         assertThat(laboratories.hasProducers(lab.id())).isTrue();
+        assertThat(laboratories.countProducers(lab.id())).isEqualTo(1);
         assertThatThrownBy(() -> laboratories.deleteById(lab.id())).isInstanceOf(ConflictException.class);
     }
 

@@ -6,6 +6,10 @@
   },
   "tags": [
     {
+      "name": "Financeiro",
+      "description": "Valor calculado por natureza: produtor, propriedade e laboratório"
+    },
+    {
       "name": "Laboratórios",
       "description": "Cadastro de laboratórios"
     },
@@ -684,6 +688,105 @@
           }
         }
       }
+    },
+    "/api/financial/properties/{id}": {
+      "get": {
+        "tags": [
+          "Financeiro"
+        ],
+        "summary": "Valor financeiro de uma propriedade",
+        "description": "Taxa operacional + taxa territorial.",
+        "operationId": "property",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Propriedade não encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/financial/producers/{id}": {
+      "get": {
+        "tags": [
+          "Financeiro"
+        ],
+        "summary": "Valor financeiro de um produtor",
+        "description": "Dias de vigência × comissão diária + propriedades × comissão por propriedade.",
+        "operationId": "producer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Produtor não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/financial/laboratories/{id}": {
+      "get": {
+        "tags": [
+          "Financeiro"
+        ],
+        "summary": "Valor financeiro de um laboratório",
+        "description": "Taxa operacional + produtores × taxa territorial por produtor.",
+        "operationId": "laboratory",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Laboratório não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FinancialResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -938,6 +1041,44 @@
           }
         },
         "description": "Informações básicas da API"
+      },
+      "Componente": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "valorUnitario": {
+            "type": "number"
+          },
+          "subtotal": {
+            "type": "number"
+          }
+        }
+      },
+      "FinancialResponse": {
+        "type": "object",
+        "properties": {
+          "valor": {
+            "type": "number",
+            "example": 700.0
+          },
+          "natureza": {
+            "type": "string",
+            "example": "PRODUCER"
+          },
+          "componentes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Componente"
+            }
+          }
+        },
+        "description": "Valor financeiro calculado e as parcelas usadas"
       }
     }
   }
