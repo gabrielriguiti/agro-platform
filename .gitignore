@@ -1,0 +1,24 @@
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+# api (Java)
+apps/api/target/
+*.class
+
+# web, packages e raiz (pnpm/Turbo)
+node_modules/
+apps/web/dist/
+apps/web/coverage/
+packages/*/dist/
+.turbo/
+
+# Material de estudo e apresentação: nunca vai para o repositório público
+docs/estudo/
+.private/

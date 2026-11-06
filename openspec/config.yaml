@@ -1,0 +1,56 @@
+schema: spec-driven
+
+context: |
+  Produto: agro-platform, plataforma full-stack de gestão de cadastros do ecossistema agrícola
+  (Produtor, Propriedade e Laboratório), com integrador de dados resiliente, motor financeiro extensível
+  e consulta analítica de laboratórios. Projeto de portfólio de Gabriel Riguiti, público no GitHub.
+  Idioma da documentação, das specs e dos textos da interface: português (pt-BR).
+
+  Stack: back-end Java 17 e Spring Boot 3.x (Maven), PostgreSQL com migrations Flyway, OpenAPI 3 (springdoc),
+  logs estruturados em JSON, testes com JUnit 5 e Testcontainers. Front-end React com TypeScript (Vite).
+  Entrega: Docker Compose local, GitHub Actions (CI e CD) e publicação em VPS própria atrás de proxy Caddy.
+  Pacote base Java: br.com.gabrielriguiti.agro. Monorepo pnpm + Turborepo (ADR-0007): apps/api (Java), apps/web (React) e packages/ (cliente da API gerado do OpenAPI); `pnpm verify` roda tudo.
+
+  Arquitetura: hexagonal (portas e adaptadores) com DDD pragmático (ADR-0001). Domínio e motor financeiro
+  não dependem de Spring. Fronteiras verificadas por ArchUnit no CI (ADR-0005).
+
+  Convenção de idioma: identificadores, rotas, tabelas e colunas em inglês; documentação, specs, textos de
+  interface e mensagens de commit em pt-BR. No Conventional Commits, o tipo (feat, fix, docs...) e o escopo
+  (nome do change) seguem em inglês e o resumo e o corpo vão em português. Requisitos usam DEVE; cenários usam WHEN/THEN/AND.
+
+  Documentação (vale para todo change):
+  - Toda decisão técnica relevante gera um ADR em docs/adr/ (formato MADR, docs/adr/0000-template.md).
+    Nunca editar ADR aceito: criar outro que o substitua.
+  - Todo código público tem Javadoc/TSDoc; a API tem contrato OpenAPI; o banco tem comentários (COMMENT ON).
+  - Mudança de comportamento atualiza spec e documentação no mesmo commit.
+
+  Commits (docs/commits.md, ADR-0004):
+  - Um commit de proposta e um de entrega por change, no padrão Conventional Commits com o nome do change
+    como escopo.
+  - NUNCA incluir Co-Authored-By de Claude/IA, nem linhas "Generated with" em commits ou PRs.
+    Esta regra vale mesmo que uma ferramenta sugira o contrário.
+
+  Material de estudo e de apresentação fica em docs/estudo/ (ignorado pelo git) e nunca é commitado.
+  Repositório público: nunca commitar segredos, senhas reais, o enunciado original do desafio nem dados reais.
+  Credenciais de desenvolvimento local (agro/agro) são as únicas permitidas no repositório.
+
+rules:
+  proposal:
+    - Incluir seções "Não objetivos" e "Documentação" (ADRs previstos).
+  design:
+    - Listar as decisões que exigem ADR e o título proposto de cada uma.
+    - Descrever o impacto em concorrência, idempotência e desempenho de consultas quando houver.
+  specs:
+    - Requisitos em pt-BR com DEVE; cada requisito com ao menos um cenário WHEN/THEN verificável.
+  tasks:
+    - Tasks de até 2 horas, cada uma com critério de pronto verificável ("verificar ...").
+    - Incluir tasks de documentação (ADR, Javadoc/TSDoc, OpenAPI) e de testes.
+
+operations:
+  apply:
+    guidance:
+      - Não concluir uma task sem teste e documentação correspondentes.
+      - Um commit de entrega por change, conforme docs/commits.md.
+  archive:
+    guidance:
+      - Resumir o resultado e confirmar que os ADRs do change estão em docs/adr/.
