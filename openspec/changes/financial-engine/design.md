@@ -1,6 +1,6 @@
 ## Context
 
-O motor fica no `application`, sem Spring, para ser testado em milissegundos e verificado pelo teste de arquitetura ([spec architecture-boundaries](../foundation/specs/architecture-boundaries/spec.md)).
+O motor fica no `application`, sem Spring, para ser testado em milissegundos e verificado pelo teste de arquitetura ([spec architecture-boundaries](../../specs/architecture-boundaries/spec.md)).
 
 ## Goals / Non-Goals
 
