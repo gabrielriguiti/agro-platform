@@ -4,7 +4,665 @@
     "title": "OpenAPI definition",
     "version": "v0"
   },
+  "tags": [
+    {
+      "name": "Laboratórios",
+      "description": "Cadastro de laboratórios"
+    },
+    {
+      "name": "Produtores",
+      "description": "Cadastro de produtores com laboratório e propriedades"
+    },
+    {
+      "name": "Propriedades",
+      "description": "Cadastro de propriedades e consulta das disponíveis para vínculo"
+    }
+  ],
   "paths": {
+    "/api/properties/{id}": {
+      "get": {
+        "tags": [
+          "Propriedades"
+        ],
+        "summary": "Consulta uma propriedade",
+        "operationId": "get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Propriedade não encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Propriedades"
+        ],
+        "summary": "Atualiza uma propriedade",
+        "description": "O vínculo com o produtor não é alterado aqui.",
+        "operationId": "update",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Propriedade não encontrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Inscrição fiscal pertence a outra propriedade",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Propriedades"
+        ],
+        "summary": "Exclui uma propriedade",
+        "description": "Desvincula do produtor sem afetar o restante.",
+        "operationId": "delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Excluída"
+          },
+          "404": {
+            "description": "Propriedade não encontrada"
+          }
+        }
+      }
+    },
+    "/api/producers/{id}": {
+      "get": {
+        "tags": [
+          "Produtores"
+        ],
+        "summary": "Consulta um produtor",
+        "description": "Devolve laboratório e propriedades embutidos.",
+        "operationId": "get_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Produtor não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Produtores"
+        ],
+        "summary": "Atualiza um produtor",
+        "description": "O conjunto de propriedades informado substitui o anterior; as removidas ficam livres.",
+        "operationId": "update_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProducerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Produtor, laboratório ou propriedade inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Inscrição duplicada ou propriedade de outro produtor",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Produtores"
+        ],
+        "summary": "Exclui um produtor",
+        "description": "Suas propriedades ficam livres.",
+        "operationId": "delete_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Produtor não encontrado"
+          },
+          "204": {
+            "description": "Excluído"
+          }
+        }
+      }
+    },
+    "/api/laboratories/{id}": {
+      "get": {
+        "tags": [
+          "Laboratórios"
+        ],
+        "summary": "Consulta um laboratório",
+        "operationId": "get_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Laboratório não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Laboratórios"
+        ],
+        "summary": "Atualiza um laboratório",
+        "operationId": "update_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "CNPJ pertence a outro laboratório",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Laboratório não encontrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Laboratórios"
+        ],
+        "summary": "Exclui um laboratório",
+        "description": "Só é possível sem produtores vinculados.",
+        "operationId": "delete_2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "404": {
+            "description": "Laboratório não encontrado"
+          },
+          "409": {
+            "description": "Há produtores vinculados"
+          },
+          "204": {
+            "description": "Excluído"
+          }
+        }
+      }
+    },
+    "/api/properties": {
+      "get": {
+        "tags": [
+          "Propriedades"
+        ],
+        "summary": "Lista propriedades",
+        "description": "Com disponiveis=true devolve só as sem produtor, mais as do produtor em edição.",
+        "operationId": "list",
+        "parameters": [
+          {
+            "name": "disponiveis",
+            "in": "query",
+            "description": "Somente propriedades disponíveis",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "produtorId",
+            "in": "query",
+            "description": "Produtor em edição",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Propriedades"
+        ],
+        "summary": "Cria uma propriedade",
+        "description": "Nasce sem produtor (disponível).",
+        "operationId": "create",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "409": {
+            "description": "Inscrição fiscal já cadastrada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Criada",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PropertyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/producers": {
+      "get": {
+        "tags": [
+          "Produtores"
+        ],
+        "summary": "Lista produtores (paginado)",
+        "description": "Carrega laboratórios e propriedades em número constante de consultas.",
+        "operationId": "list_1",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Página, a partir de 0",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "Itens por página (1 a 100)",
+            "required": false,
+            "schema": {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseProducerResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Produtores"
+        ],
+        "summary": "Cria um produtor",
+        "description": "Exige laboratório existente; as propriedades informadas devem estar livres.",
+        "operationId": "create_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProducerRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "404": {
+            "description": "Laboratório ou propriedade inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Criado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Inscrição duplicada ou propriedade de outro produtor",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/laboratories": {
+      "get": {
+        "tags": [
+          "Laboratórios"
+        ],
+        "summary": "Lista os laboratórios",
+        "description": "Ordenados por nome.",
+        "operationId": "list_2",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LaboratoryResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Laboratórios"
+        ],
+        "summary": "Cria um laboratório",
+        "description": "Exige nome, CNPJ válido e endereço.",
+        "operationId": "create_2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IdentityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Criado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "CNPJ já cadastrado",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LaboratoryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/info": {
       "get": {
         "tags": [
@@ -30,6 +688,246 @@
   },
   "components": {
     "schemas": {
+      "IdentityRequest": {
+        "required": [
+          "endereco",
+          "inscricaoFiscal",
+          "nome"
+        ],
+        "type": "object",
+        "properties": {
+          "nome": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "description": "Nome",
+            "example": "Fazenda Santa Clara"
+          },
+          "inscricaoFiscal": {
+            "type": "string",
+            "description": "CPF ou CNPJ, com ou sem máscara",
+            "example": "11.222.333/0001-81"
+          },
+          "endereco": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Endereço",
+            "example": "Rodovia BR-163, km 12, Sorriso/MT"
+          }
+        },
+        "description": "Dados cadastrais de laboratório ou propriedade"
+      },
+      "PropertyResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 10
+          },
+          "nome": {
+            "type": "string",
+            "example": "Fazenda Santa Clara"
+          },
+          "inscricaoFiscal": {
+            "type": "string",
+            "description": "CPF ou CNPJ formatado",
+            "example": "529.982.247-25"
+          },
+          "endereco": {
+            "type": "string",
+            "example": "Rodovia BR-163, km 12, Sorriso/MT"
+          },
+          "produtorId": {
+            "type": "integer",
+            "description": "Produtor dono; nulo quando a propriedade está disponível",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "description": "Propriedade rural"
+      },
+      "ProducerRequest": {
+        "required": [
+          "dataFinal",
+          "dataInicial",
+          "endereco",
+          "inscricaoFiscal",
+          "laboratorioId",
+          "nome"
+        ],
+        "type": "object",
+        "properties": {
+          "nome": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string",
+            "example": "Maria Aparecida da Silva"
+          },
+          "inscricaoFiscal": {
+            "type": "string",
+            "description": "CPF ou CNPJ, com ou sem máscara",
+            "example": "529.982.247-25"
+          },
+          "endereco": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "example": "Linha 5, lote 12, Lucas do Rio Verde/MT"
+          },
+          "dataInicial": {
+            "type": "string",
+            "description": "Início do período (ISO-8601)",
+            "format": "date-time",
+            "example": "2025-01-01T00:00:00Z"
+          },
+          "dataFinal": {
+            "type": "string",
+            "description": "Fim do período (ISO-8601)",
+            "format": "date-time",
+            "example": "2025-12-31T23:59:59Z"
+          },
+          "observacoes": {
+            "type": "string",
+            "description": "Observações livres",
+            "nullable": true
+          },
+          "laboratorioId": {
+            "type": "integer",
+            "description": "Laboratório do produtor",
+            "format": "int64",
+            "example": 1
+          },
+          "propriedadeIds": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "Propriedades a vincular (devem estar livres ou já ser do produtor)",
+            "items": {
+              "type": "integer",
+              "description": "Propriedades a vincular (devem estar livres ou já ser do produtor)",
+              "format": "int64"
+            }
+          }
+        },
+        "description": "Dados do produtor"
+      },
+      "LaboratoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "Laboratório Solo Vivo"
+          },
+          "inscricaoFiscal": {
+            "type": "string",
+            "description": "CNPJ formatado",
+            "example": "11.222.333/0001-81"
+          },
+          "endereco": {
+            "type": "string",
+            "example": "Av. das Análises, 100, Cuiabá/MT"
+          }
+        },
+        "description": "Laboratório"
+      },
+      "ProducerResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 7
+          },
+          "nome": {
+            "type": "string"
+          },
+          "inscricaoFiscal": {
+            "type": "string",
+            "description": "CPF ou CNPJ formatado",
+            "example": "529.982.247-25"
+          },
+          "endereco": {
+            "type": "string"
+          },
+          "dataInicial": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-01-01T00:00:00Z"
+          },
+          "dataFinal": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-31T23:59:59Z"
+          },
+          "observacoes": {
+            "type": "string",
+            "nullable": true
+          },
+          "laboratorio": {
+            "$ref": "#/components/schemas/LaboratoryResponse"
+          },
+          "propriedades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PropertySummary"
+            }
+          }
+        },
+        "description": "Produtor com laboratório e propriedades"
+      },
+      "PropertySummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "inscricaoFiscal": {
+            "type": "string"
+          },
+          "endereco": {
+            "type": "string"
+          }
+        },
+        "description": "Propriedade embutida no produtor"
+      },
+      "PageResponseProducerResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProducerResponse"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Página de resultados"
+      },
       "InfoResponse": {
         "type": "object",
         "properties": {
