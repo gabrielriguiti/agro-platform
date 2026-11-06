@@ -15,7 +15,7 @@ Contexto `registry` do monólito hexagonal ([ADR-0001](../../../docs/adr/0001-ar
 
 1. **Agregados referenciados por id.** `Producer` guarda `laboratoryId` e `propertyIds`; o caso de uso verifica existência e exclusividade. Alternativa: grafo de objetos com lazy loading (descartada: N+1 e acoplamento).
 2. **Vínculo 1:N na tabela `properties`** (`producer_id` anulável, `ON DELETE SET NULL`). Alternativa: tabela associativa (descartada: a relação é 1:N e a propriedade tem no máximo um dono).
-3. **Carregamento em lote na listagem:** página de produtores, depois `IN (...)` para laboratórios e para propriedades; montagem em memória. Teste conta consultas.
+3. **Carregamento em lote na listagem:** contagem total, página de produtores já unida ao laboratório (`JOIN`) e `IN (...)` para as propriedades da página; montagem em memória, em no máximo 3 consultas. Teste conta consultas.
 4. **Persistência:** entidades JPA separadas do domínio, mapeadas no adaptador; `ddl-auto: validate`.
 5. **Unicidade pelo banco** (`UNIQUE` em `tax_id`), com tradução da violação para 409.
 6. **Concorrência:** a atualização do conjunto de propriedades roda em uma transação; a exclusividade é garantida por `UPDATE ... WHERE producer_id IS NULL OR producer_id = :id` conferindo as linhas afetadas.
