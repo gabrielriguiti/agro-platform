@@ -24,5 +24,5 @@
 
 ## 5. Entrega
 
-- [ ] 5.1 Criar o workflow de CI (`pnpm verify`: API e web); verificar execução verde no GitHub Actions
+- [x] 5.1 Criar o workflow de CI (`pnpm verify`: API e web); verificar execução verde no GitHub Actions
 - [x] 5.2 Criar o README com visão geral, como rodar, diagrama de arquitetura inicial e a seção "Uso de IA"; verificar os comandos em uma máquina limpa
