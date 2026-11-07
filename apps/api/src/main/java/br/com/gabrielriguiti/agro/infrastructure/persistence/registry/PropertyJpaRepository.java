@@ -2,6 +2,7 @@ package br.com.gabrielriguiti.agro.infrastructure.persistence.registry;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,4 +35,7 @@ interface PropertyJpaRepository extends JpaRepository<PropertyEntity, Long> {
     @Query("update PropertyEntity p set p.producerId = null, p.updatedAt = current_timestamp "
             + "where p.producerId = :producerId")
     int unlinkAll(@Param("producerId") long producerId);
+
+    @Query("select p.id from PropertyEntity p where p.taxId = :taxId")
+    Optional<Long> findIdByTaxId(@Param("taxId") String taxId);
 }

@@ -62,4 +62,9 @@ class LaboratoryRepositoryAdapter implements LaboratoryRepository {
             throw PersistenceErrors.toConflict(e);
         }
     }
+
+    @Override
+    public Optional<Long> findIdByTaxId(String digits) {
+        return jpa.findIdByTaxId(digits);
+    }
 }

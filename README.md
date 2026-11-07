@@ -91,11 +91,103 @@ As taxas mudam por configuração, sem recompilar (por exemplo, a variável `AGR
 
 Para uma nova regra, implemente `FinancialCalculator` e declare-a como bean: o motor e as calculadoras existentes não mudam.
 
+## Integração de dados
+
+Parceiros (ERP, LIMS, órgãos de governo) enviam produtores, propriedades e laboratórios em lote ou de forma pontual. A API só **grava** (202) e um worker **processa** depois, com idempotência, retry e DLQ ([ADR-0011](docs/adr/0011-outbox-como-inbox-em-postgresql.md) a [0015](docs/adr/0015-estrategias-de-reconciliacao.md)). A tabela `outbox_message` no PostgreSQL é a fila durável; sem broker externo, e a porta `OutboxPort` mantém a escolha substituível.
+
+```bash
+curl -X POST localhost:8080/api/integration/batches -H 'Content-Type: application/json' -d '{
+  "source": "erp-fazendas", "mergeStrategy": "MERGE",
+  "items": [{ "type": "PRODUCER", "externalId": "P-9", "data": {
+    "nome": "Maria", "inscricaoFiscal": "529.982.247-25", "endereco": "Linha 5, Sorriso/MT",
+    "dataInicial": "2025-01-01T00:00:00Z", "dataFinal": "2025-12-31T23:59:59Z",
+    "laboratorio": { "id": "LAB-1", "nome": "Lab Central", "inscricaoFiscal": "11.222.333/0001-81", "endereco": "Av. Brasil, 1" },
+    "propriedades": [ { "id": "PR-1", "nome": "Fazenda Sol", "inscricaoFiscal": "390.533.447-05", "endereco": "BR-163, km 12" } ]
+  } }]
+}'
+# 202 {"batchId":1,"accepted":1,"duplicates":0}
+```
+
+| Endpoint | Função |
+|---|---|
+| `POST /api/integration/batches` | ingere um lote (1 a 1000 itens) |
+| `GET /api/integration/batches` e `/{id}` | lotes com contagens por status e estado (`EM_ANDAMENTO`, `CONCLUIDO`, `CONCLUIDO_COM_FALHAS`) |
+| `GET /api/integration/messages?status=DEAD&batchId=` e `/{id}` | mensagens paginadas (DLQ com `status=DEAD`); o payload vem no detalhe |
+| `POST /api/integration/messages/{id}/reprocess` e `/batches/{id}/reprocess` | reenfileira o que está em `DEAD` (409 fora dele) |
+| `POST /api/integration/worker/run` | executa um ciclo do worker (só com `manual-run-enabled=true`; senão, 404) |
+
+### Ingestão
+
+```mermaid
+sequenceDiagram
+    participant P as Parceiro
+    participant A as API
+    participant DB as PostgreSQL
+    P->>A: POST /api/integration/batches
+    A->>A: valida o envelope (400) e o limite (413)
+    A->>DB: BEGIN
+    A->>DB: INSERT integration_batch
+    loop cada item
+        A->>DB: INSERT outbox_message ON CONFLICT (idempotency_key) DO NOTHING
+    end
+    A->>DB: COMMIT (tudo ou nada)
+    A-->>P: 202 {batchId, accepted, duplicates}
+```
+
+### Processamento
+
+```mermaid
+sequenceDiagram
+    participant W as Worker
+    participant DB as PostgreSQL
+    loop a cada ciclo
+        W->>DB: UPDATE ... FROM (SELECT ... FOR UPDATE SKIP LOCKED) RETURNING
+        Note over W,DB: PROCESSING, lease e attempts + 1
+        W->>DB: BEGIN (REQUIRES_NEW, uma por mensagem)
+        W->>DB: resolve identidade, reconcilia e grava as entidades
+        alt sucesso
+            W->>DB: COMMIT
+            W->>DB: status = DONE
+        else falha
+            W->>DB: ROLLBACK (nada da mensagem fica)
+            W->>DB: PENDING com backoff, ou DEAD
+        end
+    end
+```
+
+### Estados da mensagem
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING: ingestão
+    PENDING --> PROCESSING: reserva (attempts + 1)
+    PROCESSING --> DONE: sucesso
+    PROCESSING --> PENDING: falha transitória (backoff com jitter)
+    PROCESSING --> DEAD: falha permanente ou tentativas esgotadas
+    PROCESSING --> PROCESSING: lease vencido (worker morreu)
+    DEAD --> PENDING: reprocesso manual (attempts = 0)
+    DONE --> [*]
+```
+
+### Falhas, retry e reconciliação
+
+- **Permanentes** (JSON malformado, campo ausente, CPF/CNPJ inválido, conflito de identidade) vão direto para `DEAD`. **Transitórias** (banco, corrida por CNPJ, desconhecidas) reagendam com `min(10 min, 5 s × 2^(n-1)) × (1 + 0,1 × r)` e vão para `DEAD` na 5ª tentativa.
+- A identidade é resolvida por (`source`, `externalId`) e, na ausência, pela inscrição fiscal. Estratégias: `MERGE` (preserva o existente, preenche vazios), `OVERWRITE` (o recebido vence) e `KEEP_EXISTING` (ignora o recebido).
+- Reenvio idêntico (mesmo `source`, tipo, id e payload, em qualquer ordem de campos) é `duplicates`; propriedades já vinculadas nunca são removidas por um reenvio.
+- Cenários em Gherkin: [docs/bdd/](docs/bdd/README.md).
+
+| Propriedade (`agro.integration.*`) | Padrão |
+|---|---|
+| `max-batch-size` / `max-attempts` / `worker-batch-size` | 1000 / 5 / 20 |
+| `lease` / `poll-interval` | `PT2M` / `PT5S` |
+| `backoff-base` / `backoff-max` / `backoff-jitter` | `PT5S` / `PT10M` / 0.1 |
+| `scheduler-enabled` / `manual-run-enabled` | `true` / `false` |
+
 ## Documentação e convenções
 
 - Decisões: [docs/adr/](docs/adr/README.md). Commits: [docs/commits.md](docs/commits.md). Specs: [openspec/](openspec/).
 - Identificadores, rotas, tabelas e colunas em inglês; documentação, specs e textos da interface em português.
-- O banco tem `COMMENT ON` em todas as tabelas e colunas ([`V1__schema.sql`](apps/api/src/main/resources/db/migration/V1__schema.sql)).
+- O banco tem `COMMENT ON` em todas as tabelas e colunas ([`V1__schema.sql`](apps/api/src/main/resources/db/migration/V1__schema.sql) e [`V2__external_reference.sql`](apps/api/src/main/resources/db/migration/V2__external_reference.sql)).
 
 ## Uso de IA
 

@@ -42,4 +42,7 @@ public interface PropertyRepository {
 
     /** Remove a propriedade (e, com isso, o vínculo). */
     void deleteById(long id);
+
+    /** @return o id da propriedade com esta inscrição fiscal (apenas dígitos), se existir */
+    Optional<Long> findIdByTaxId(String digits);
 }

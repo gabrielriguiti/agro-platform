@@ -108,4 +108,9 @@ class ProducerRepositoryAdapter implements ProducerRepository {
 
     private record ProducerAndLab(ProducerEntity producer, LaboratoryEntity laboratory) {
     }
+
+    @Override
+    public Optional<Long> findIdByTaxId(String digits) {
+        return jpa.findIdByTaxId(digits);
+    }
 }

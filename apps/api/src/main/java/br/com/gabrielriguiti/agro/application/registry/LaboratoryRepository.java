@@ -32,4 +32,7 @@ public interface LaboratoryRepository {
      * @throws ConflictException se algum produtor ainda o referenciar
      */
     void deleteById(long id);
+
+    /** @return o id do laboratório com esta inscrição fiscal (14 dígitos), se existir */
+    Optional<Long> findIdByTaxId(String digits);
 }

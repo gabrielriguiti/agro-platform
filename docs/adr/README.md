@@ -18,3 +18,8 @@ Cada decisão técnica ou de arquitetura relevante vira um ADR neste diretório,
 | [0008](0008-agregados-referenciados-por-id-e-vinculo-da-propriedade.md) | Agregados referenciados por id e vínculo da propriedade ao produtor | aceito |
 | [0009](0009-identificacao-fiscal-como-value-object.md) | Identificação fiscal como Value Object | aceito |
 | [0010](0010-motor-financeiro-como-strategy-puro-com-taxas-configuraveis.md) | Motor financeiro como Strategy puro com taxas configuráveis | aceito |
+| [0011](0011-outbox-como-inbox-em-postgresql.md) | Outbox como inbox em PostgreSQL | aceito |
+| [0012](0012-reserva-por-skip-locked-com-lease.md) | Reserva por SKIP LOCKED com lease | aceito |
+| [0013](0013-idempotencia-por-chave-da-mensagem-e-chaves-naturais.md) | Idempotência por chave da mensagem e chaves naturais | aceito |
+| [0014](0014-classificacao-de-falhas-e-backoff-com-jitter.md) | Classificação de falhas e backoff com jitter | aceito |
+| [0015](0015-estrategias-de-reconciliacao.md) | Estratégias de reconciliação | aceito |

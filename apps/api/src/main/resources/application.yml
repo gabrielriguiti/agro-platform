@@ -29,3 +29,17 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# Integração (change integration-pipeline). Todos os valores abaixo são os padrões.
+agro:
+  integration:
+    max-batch-size: 1000          # itens por lote; acima disso a ingestão responde 413
+    max-attempts: 5               # tentativas antes de a mensagem ir para a DLQ
+    worker-batch-size: 20         # mensagens reservadas por ciclo do worker
+    lease: PT2M                   # duração da reserva; vencida, a mensagem volta a ser elegível
+    poll-interval: PT5S           # intervalo do agendador do worker
+    scheduler-enabled: true       # false desliga o agendador (o ciclo manual continua possível)
+    manual-run-enabled: false     # true habilita POST /api/integration/worker/run
+    backoff-base: PT5S
+    backoff-max: PT10M
+    backoff-jitter: 0.1

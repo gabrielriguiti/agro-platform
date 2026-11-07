@@ -1,5 +1,7 @@
 package br.com.gabrielriguiti.agro.infrastructure.web;
 
+import br.com.gabrielriguiti.agro.application.integration.BatchTooLargeException;
+import br.com.gabrielriguiti.agro.application.integration.InvalidBatchException;
 import br.com.gabrielriguiti.agro.application.registry.ConflictException;
 import br.com.gabrielriguiti.agro.application.registry.ResourceNotFoundException;
 import br.com.gabrielriguiti.agro.domain.registry.DomainValidationException;
@@ -49,6 +51,17 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ConflictException.class)
     ResponseEntity<Object> conflict(ConflictException e) {
         return problem(HttpStatus.CONFLICT, "Conflito", e.getMessage(), null);
+    }
+
+    @ExceptionHandler(InvalidBatchException.class)
+    ResponseEntity<Object> invalidBatch(InvalidBatchException e) {
+        return problem(HttpStatus.BAD_REQUEST, "Requisição inválida", e.getMessage(),
+                List.of(new FieldProblem(e.field(), e.getMessage())));
+    }
+
+    @ExceptionHandler(BatchTooLargeException.class)
+    ResponseEntity<Object> batchTooLarge(BatchTooLargeException e) {
+        return problem(HttpStatus.PAYLOAD_TOO_LARGE, "Lote grande demais", e.getMessage(), null);
     }
 
     @ExceptionHandler(Exception.class)

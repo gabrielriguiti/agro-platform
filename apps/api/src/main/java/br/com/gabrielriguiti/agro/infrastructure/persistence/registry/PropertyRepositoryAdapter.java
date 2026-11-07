@@ -70,4 +70,9 @@ class PropertyRepositoryAdapter implements PropertyRepository {
     public void deleteById(long id) {
         jpa.deleteById(id);
     }
+
+    @Override
+    public Optional<Long> findIdByTaxId(String digits) {
+        return jpa.findIdByTaxId(digits);
+    }
 }

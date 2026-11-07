@@ -30,4 +30,7 @@ public interface ProducerRepository {
      * @param size itens por página
      */
     PageResult<ProducerDetails> findPage(int page, int size);
+
+    /** @return o id do produtor com esta inscrição fiscal (apenas dígitos), se existir */
+    Optional<Long> findIdByTaxId(String digits);
 }

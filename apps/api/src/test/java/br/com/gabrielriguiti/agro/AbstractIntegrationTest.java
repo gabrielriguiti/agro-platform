@@ -9,8 +9,13 @@ import org.testcontainers.containers.PostgreSQLContainer;
  *
  * <p>O contêiner é um singleton compartilhado por todas as classes de teste (o contexto do Spring é reaproveitado
  * entre elas) e é encerrado pelo Ryuk ao fim da JVM.
+ *
+ * <p>O agendador do worker de integração fica desligado e a execução manual habilitada, para que os testes
+ * conduzam o processamento de forma determinística.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"agro.integration.scheduler-enabled=false", "agro.integration.manual-run-enabled=true"})
 public abstract class AbstractIntegrationTest {
 
     @ServiceConnection
