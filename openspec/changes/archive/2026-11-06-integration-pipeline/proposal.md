@@ -24,7 +24,7 @@ O sistema precisa sincronizar Produtores, Propriedades e Laboratórios com siste
 
 ## Impact
 
-Tabelas `integration_batch` e `outbox_message`; colunas `external_source`/`external_id` nas entidades do cadastro; contexto `integration` em `domain`/`application`/`infrastructure`. Usado pelo painel de monitoramento do web. Depende de `registry`.
+Tabelas `integration_batch` e `outbox_message`; tabela `external_reference` (vínculos com ids externos, migration V2) no lugar das colunas `external_source`/`external_id` do cadastro; contexto `integration` em `domain`/`application`/`infrastructure`. Usado pelo painel de monitoramento do web. Depende de `registry`.
 
 **Premissas:** o "Transactional Outbox" aqui funciona como caixa de entrada (inbox/staging) em PostgreSQL, sem broker externo: a tabela é a fila durável, gravada na mesma transação da ingestão. A troca por RabbitMQ/Kafka afetaria só o adaptador de fila.
 

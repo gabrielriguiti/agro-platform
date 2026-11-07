@@ -24,6 +24,8 @@ O enunciado pede ingestão em lote ou stream, Outbox ou mensageria, idempotênci
 8. **Worker agendado** (`@Scheduled`) com ciclo exposto também por endpoint manual configurável, para demo e testes determinísticos.
 9. **Payload como `TEXT`** com JSON canônico para a chave; o parse acontece no worker, de modo que payload inválido vira `DEAD` e não erro de ingestão.
 
+10. **Vínculos externos em tabela própria (`external_reference`, migration V2).** O par `external_source`/`external_id` do V1 comportava um parceiro por registro, mas a spec de reconciliação exige que o registro passe a ter *também* o vínculo do segundo sistema. As colunas (nunca mapeadas nem preenchidas) foram substituídas por uma tabela com `UNIQUE (entity_type, source, external_id)`.
+
 ADRs a gerar: 0011 a 0015 (títulos na proposta).
 
 ## Risks / Trade-offs
