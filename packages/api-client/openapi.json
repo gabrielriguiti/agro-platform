@@ -18,6 +18,10 @@
       "description": "Cadastro de produtores com laboratório e propriedades"
     },
     {
+      "name": "Análise de laboratórios",
+      "description": "Comparativo de laboratórios por produtores e valor financeiro"
+    },
+    {
       "name": "Propriedades",
       "description": "Cadastro de propriedades e consulta das disponíveis para vínculo"
     },
@@ -853,6 +857,90 @@
         }
       }
     },
+    "/api/laboratories/analytics": {
+      "get": {
+        "tags": [
+          "Análise de laboratórios"
+        ],
+        "summary": "Analítico de laboratórios",
+        "description": "Os filtros incidem sobre os produtores: totalProdutores conta só os que atendem a todos e qtdMinimaProdutores é aplicado a essa contagem. Datas em ISO-8601 (instante UTC).",
+        "operationId": "analytics",
+        "parameters": [
+          {
+            "name": "qtdMinimaProdutores",
+            "in": "query",
+            "description": "Quantidade mínima de produtores filtrados",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 2
+          },
+          {
+            "name": "dataInicialInicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataInicialFim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFinalInicio",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "dataFinalFim",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "buscaTexto",
+            "in": "query",
+            "description": "Busca parcial e literal (% _ \\ não são curingas) em observacoes",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Parâmetro ausente, fora do intervalo ou intervalo invertido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabAnalyticsResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/integration/messages": {
       "get": {
         "tags": [
@@ -1482,6 +1570,30 @@
           }
         },
         "description": "Página de resultados"
+      },
+      "LabAnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "nome": {
+            "type": "string",
+            "example": "LABORATÓRIO MODELO 1"
+          },
+          "totalProdutores": {
+            "type": "integer",
+            "format": "int32",
+            "example": 4
+          },
+          "valorFinanceiroConsolidado": {
+            "type": "number",
+            "example": 600.0
+          }
+        },
+        "description": "Laboratório com o total de produtores filtrados e o valor financeiro consolidado"
       },
       "MessagePage": {
         "type": "object",

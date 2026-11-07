@@ -183,6 +183,43 @@ stateDiagram-v2
 | `backoff-base` / `backoff-max` / `backoff-jitter` | `PT5S` / `PT10M` / 0.1 |
 | `scheduler-enabled` / `manual-run-enabled` | `true` / `false` |
 
+## Análise de laboratórios
+
+`GET /api/laboratories/analytics` compara laboratórios por produtores e valor financeiro, em **uma única consulta** com `GROUP BY`/`HAVING` ([ADR-0016](docs/adr/0016-consulta-analitica-em-sql-dinamico-como-leitura-separada.md)). Retorna `id`, `nome` em CAIXA ALTA, `totalProdutores` e `valorFinanceiroConsolidado` (motor financeiro aplicado ao `totalProdutores` do próprio resultado: 4 produtores = 600,00).
+
+| Parâmetro | Obrigatório | Efeito |
+|---|---|---|
+| `qtdMinimaProdutores` | sim (≥ 1) | só laboratórios com ao menos essa quantidade de produtores **que atendem aos filtros** |
+| `dataInicialInicio` / `dataInicialFim` | não | intervalo inclusivo sobre `dataInicial` do produtor (ISO-8601, instante UTC) |
+| `dataFinalInicio` / `dataFinalFim` | não | intervalo inclusivo sobre `dataFinal` do produtor |
+| `buscaTexto` | não | correspondência parcial, sem distinção de caixa, em `observacoes`; `%`, `_` e `\` são literais |
+
+```bash
+curl -G localhost:8080/api/laboratories/analytics \
+  --data-urlencode 'qtdMinimaProdutores=2' \
+  --data-urlencode 'dataInicialInicio=2025-01-01T00:00:00Z' \
+  --data-urlencode 'dataInicialFim=2025-12-31T23:59:59Z' \
+  --data-urlencode 'buscaTexto=integração'   # --data-urlencode codifica acentos e símbolos; sem isso o Tomcat responde 400
+# [{"id":3,"nome":"LABORATÓRIO MODELO 1","totalProdutores":4,"valorFinanceiroConsolidado":600.00}, ...]
+```
+
+**Semântica do total (premissa a validar com o negócio):** os filtros incidem sobre os produtores. `totalProdutores` conta só os que atendem a todos os filtros (um laboratório com 4 produtores, 2 deles com o texto buscado, aparece com `totalProdutores` 2), `qtdMinimaProdutores` é aplicado a essa contagem e laboratórios sem produtor que atenda não aparecem. Parâmetro ausente, `qtdMinimaProdutores` < 1 ou intervalo invertido respondem 400.
+
+**Ordenação:** `totalProdutores` decrescente; havendo filtro de `dataInicial`, a menor `dataInicial` entre os produtores considerados (crescente); desempate por `id`.
+
+**Desempenho:** os índices `ix_producers_laboratory_id`, `ix_producers_data_inicial` e `ix_producers_data_final` (já em `V1__schema.sql`) apoiam a consulta. Plano real (PostgreSQL 16, 50 laboratórios, 200 mil produtores, `EXPLAIN (ANALYZE, COSTS OFF)` com filtro de um mês em `dataInicial` e texto):
+
+```text
+Sort  (Sort Key: count DESC, min(data_inicial), l.id)
+  -> GroupAggregate (rows=32)
+       -> Merge Join (rows=458)
+            -> Sort -> Seq Scan on laboratories l (rows=50)
+            -> Sort -> Bitmap Heap Scan on producers p (rows=458; Filter: observacoes ILIKE; removidas 2742)
+                         -> Bitmap Index Scan on ix_producers_data_inicial (rows=3200)
+```
+
+Sem filtros o plano é um `Seq Scan` paralelo com `HashAggregate`, que é o certo quando todas as linhas contam. `ILIKE '%x%'` não usa índice b-tree: se o volume exigir, a evolução é `pg_trgm` com índice GIN em `observacoes`.
+
 ## Documentação e convenções
 
 - Decisões: [docs/adr/](docs/adr/README.md). Commits: [docs/commits.md](docs/commits.md). Specs: [openspec/](openspec/).
