@@ -96,7 +96,7 @@ curl -s -o /dev/null -w "%{http_code}\n" -X POST https://agro.gabrielriguiti.com
 
 ## Reverter
 
-Em Actions, **Deploy → Run workflow**, informe a tag anterior (o SHA da versão boa; a VPS guarda a atual em `/opt/agro/.current-tag` e a anterior em `.previous-tag`). Nenhuma imagem é reconstruída. Se uma versão nova não ficar saudável em 90 s, o `agro-deploy` já restaura a anterior sozinho e o job falha.
+Em Actions, **Deploy → Run workflow**, informe a tag anterior (o SHA da versão boa; a VPS guarda a atual em `/opt/agro/.current-tag` e a anterior em `.previous-tag`). Nenhuma imagem é reconstruída. Se os serviços de uma versão nova não subirem, ou a API não ficar saudável em 90 s depois de subir (o `docker compose up` espera a API antes, por até cerca de 170 s), o `agro-deploy` já restaura a anterior sozinho e o job falha.
 
 ## Diagnóstico
 

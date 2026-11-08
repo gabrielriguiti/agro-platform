@@ -303,8 +303,8 @@ erDiagram
 
 ## Entrega: CI/CD e publicação
 
-- **CI** ([ci.yml](.github/workflows/ci.yml)): em todo push e pull request roda `pnpm docs:check` (links e índice de ADRs) e `pnpm verify`, publica os relatórios e resume os testes no sumário do job.
-- **CD** ([deploy.yml](.github/workflows/deploy.yml)): em `main` com CI verde, publica as imagens no GHCR com a tag igual ao SHA e implanta na VPS por SSH com chave restrita ao comando `deploy <tag>`. Se a API não ficar saudável em 90 s, a versão anterior é restaurada; reverter é o `workflow_dispatch` com a tag anterior ([ADR-0020](docs/adr/0020-pipeline-ci-cd-com-ghcr-e-ssh-restrito.md)).
+- **CI** ([ci.yml](.github/workflows/ci.yml)): em todo push para `main` e em todo pull request roda `pnpm docs:check` (links e índice de ADRs) e `pnpm verify`, publica os relatórios e resume os testes no sumário do job.
+- **CD** ([deploy.yml](.github/workflows/deploy.yml)): em `main` com CI verde, publica as imagens no GHCR com a tag igual ao SHA e implanta na VPS por SSH com chave restrita ao comando `deploy <tag>`. Se os serviços não subirem ou a API não ficar saudável em 90 s depois de subir, a versão anterior é restaurada; reverter é o `workflow_dispatch` com a tag anterior ([ADR-0020](docs/adr/0020-pipeline-ci-cd-com-ghcr-e-ssh-restrito.md)).
 - **Operação:** passo a passo em [docs/deploy.md](docs/deploy.md); os arquivos da VPS ficam em [infra/vps/](infra/vps/). `/actuator/info` mostra o SHA no ar.
 
 ## Premissas e limitações
