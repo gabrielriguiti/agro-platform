@@ -24,3 +24,4 @@ Cada decisão técnica ou de arquitetura relevante vira um ADR neste diretório,
 | [0014](0014-classificacao-de-falhas-e-backoff-com-jitter.md) | Classificação de falhas e backoff com jitter | aceito |
 | [0015](0015-estrategias-de-reconciliacao.md) | Estratégias de reconciliação | aceito |
 | [0016](0016-consulta-analitica-em-sql-dinamico-como-leitura-separada.md) | Consulta analítica em SQL dinâmico como leitura separada | aceito |
+| [0017](0017-front-simples-com-vite-react-e-cliente-tipado.md) | Front simples com Vite, React e cliente tipado | aceito |

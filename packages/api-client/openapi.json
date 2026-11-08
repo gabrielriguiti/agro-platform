@@ -180,6 +180,16 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "Produtor com laboratório e propriedades",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
           }
         }
       },
@@ -214,6 +224,16 @@
         "responses": {
           "404": {
             "description": "Produtor, laboratório ou propriedade inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProducerResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Produtor atualizado",
             "content": {
               "*/*": {
                 "schema": {
@@ -726,6 +746,16 @@
               }
             }
           },
+          "200": {
+            "description": "Mensagem recolocada na fila",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Mensagem inexistente",
             "content": {
@@ -853,6 +883,16 @@
                 }
               }
             }
+          },
+          "200": {
+            "description": "Quantidade de mensagens recolocadas na fila",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReprocessResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -927,6 +967,19 @@
         "responses": {
           "400": {
             "description": "Parâmetro ausente, fora do intervalo ou intervalo invertido",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LabAnalyticsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Laboratórios com o total de produtores e o valor consolidado",
             "content": {
               "*/*": {
                 "schema": {
@@ -1028,6 +1081,16 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "Mensagem com o payload completo",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Mensagem inexistente",
             "content": {
@@ -1062,6 +1125,16 @@
         "responses": {
           "404": {
             "description": "Lote inexistente",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchResponse"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Lote",
             "content": {
               "*/*": {
                 "schema": {

@@ -2,12 +2,12 @@
 
 Plataforma full-stack para gestão dos cadastros do ecossistema agrícola — **Produtor**, **Propriedade** e **Laboratório** — com integrador de dados resiliente, motor financeiro extensível e consulta analítica de laboratórios. Projeto de portfólio, desenvolvido change a change com [OpenSpec](openspec/) e decisões registradas em [ADRs](docs/adr/README.md).
 
-> **Estado atual:** change `foundation` (base verificável): a API sobe, migra o banco, publica OpenAPI e logs em JSON, e o build falha se a arquitetura for violada. As regras de negócio chegam nos changes seguintes ([ordem dos changes](docs/ordem-dos-changes.md)).
+> **Estado atual:** API completa (cadastro, motor financeiro, integração resiliente e análise de laboratórios) e interface web (produtores, laboratórios, propriedades, dashboard e monitor). O que falta é a entrega (Docker Compose, CI/CD e publicação), no change `delivery` ([ordem dos changes](docs/ordem-dos-changes.md)).
 
 ## Stack
 
 - **API:** Java 17, Spring Boot 3.3, Maven, PostgreSQL + Flyway, springdoc (OpenAPI 3), logs JSON, JUnit 5, Testcontainers e ArchUnit.
-- **Web:** React + TypeScript (Vite), roteamento com React Router.
+- **Web:** React + TypeScript (Vite), React Router, React Query e CSS próprio, sem biblioteca de componentes ([ADR-0017](docs/adr/0017-front-simples-com-vite-react-e-cliente-tipado.md)).
 - **Monorepo:** pnpm + Turborepo ([ADR-0007](docs/adr/0007-monorepo-pnpm-turborepo-com-api-java.md)): `apps/api`, `apps/web` e `packages/api-client` (tipos gerados do OpenAPI).
 
 ## Como rodar
@@ -219,6 +219,47 @@ Sort  (Sort Key: count DESC, min(data_inicial), l.id)
 ```
 
 Sem filtros o plano é um `Seq Scan` paralelo com `HashAggregate`, que é o certo quando todas as linhas contam. `ILIKE '%x%'` não usa índice b-tree: se o volume exigir, a evolução é `pg_trgm` com índice GIN em `observacoes`.
+
+## Interface web
+
+Telas em `apps/web`, que falam com a API só pelo contrato OpenAPI ([ADR-0017](docs/adr/0017-front-simples-com-vite-react-e-cliente-tipado.md)). Textos em português; os dados abaixo são fictícios.
+
+| Tela | Rota | O que faz |
+|---|---|---|
+| Grid de produtores | `/produtores` | listagem paginada, edição e exclusão com confirmação |
+| Formulário de produtor | `/produtores/novo`, `/produtores/:id/editar` | máscara e validação de CPF/CNPJ e do período, select de laboratório, multi-select de propriedades, erros 400/409 junto aos campos |
+| Laboratórios | `/laboratorios`, `/laboratorios/novo`, `/laboratorios/:id/editar` | listagem, criação, edição e exclusão (CNPJ obrigatório; 409 se há produtores) |
+| Propriedades | `/propriedades`, `/propriedades/novo`, `/propriedades/:id/editar` | listagem com situação (disponível ou vinculada), criação, edição e exclusão (desvincula do produtor) |
+| Dashboard de laboratórios | `/analise` | filtros do endpoint analítico, tabela e gráfico de barras na ordem da API |
+| Monitor de integração | `/integracao` | lotes (atualizados a cada 5 s), mensagens e DLQ, detalhe com erro e payload, reprocessamento e envio de lote de exemplo |
+
+![Grid de produtores](docs/screenshots/01-produtores.png)
+
+![Formulário de produtor](docs/screenshots/02-formulario-produtor.png)
+
+![Dashboard de laboratórios](docs/screenshots/03-dashboard.png)
+
+![Monitor de integração](docs/screenshots/04-monitor-integracao.png)
+
+O lote de exemplo (`/integracao/enviar`) traz itens válidos e um produtor com CPF inválido: os válidos terminam `DONE` e o inválido vai para a DLQ, onde dá para ver o motivo e o payload e reprocessar.
+
+![Lote com mensagem na DLQ](docs/screenshots/05-monitor-lote-dlq.png)
+
+### De onde vêm laboratórios e propriedades
+
+O formulário de produtor precisa de laboratório e de propriedades para escolher. Num banco vazio não há nenhum, e percebemos isso ao testar. Chegamos a considerar deixar esses cadastros só pela integração, mas **decidimos criar as telas** ([ADR-0017](docs/adr/0017-front-simples-com-vite-react-e-cliente-tipado.md)), para o formulário funcionar de ponta a ponta sem lote nem `curl`. Os dados também podem chegar pela integração (carga em volume, demonstração da DLQ).
+
+- **Laboratórios** (`/laboratorios`): o CNPJ é obrigatório. Excluir um laboratório com produtores vinculados é recusado (409) e a tela mostra o motivo.
+- **Propriedades** (`/propriedades`): CPF ou CNPJ; a lista mostra se a propriedade está disponível ou vinculada. Excluir uma propriedade vinculada a desvincula do produtor, que continua existindo (a confirmação avisa). O vínculo com o produtor é feito no formulário de produtor.
+- Em banco vazio, o formulário de produtor avisa e leva ao cadastro correspondente.
+
+Cada "Carregar exemplo" do monitor gera ids externos novos; reenviar o mesmo JSON sem alterar vira "duplicado" (a API é idempotente) e o lote fica vazio.
+
+![Laboratórios](docs/screenshots/06-laboratorios.png)
+
+![Propriedades](docs/screenshots/07-propriedades.png)
+
+Os componentes ficam em `apps/web/src/components/` (tokens em `apps/web/src/styles/tokens.css`). Os testes (`pnpm --filter web test`) usam um `fetch` simulado e cobrem os cenários das specs; o `typecheck` do cliente quebra se a API mudar algo de que o web depende.
 
 ## Documentação e convenções
 

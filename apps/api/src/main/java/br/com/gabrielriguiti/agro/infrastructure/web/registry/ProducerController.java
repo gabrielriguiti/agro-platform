@@ -77,6 +77,7 @@ public class ProducerController {
      */
     @GetMapping("/{id}")
     @Operation(summary = "Consulta um produtor", description = "Devolve laboratório e propriedades embutidos.")
+    @ApiResponse(responseCode = "200", description = "Produtor com laboratório e propriedades")
     @ApiResponse(responseCode = "404", description = "Produtor não encontrado")
     public ProducerResponse get(@PathVariable long id) {
         return ProducerResponse.from(service.get(id));
@@ -92,6 +93,7 @@ public class ProducerController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualiza um produtor",
             description = "O conjunto de propriedades informado substitui o anterior; as removidas ficam livres.")
+    @ApiResponse(responseCode = "200", description = "Produtor atualizado")
     @ApiResponse(responseCode = "400", description = "Dados inválidos")
     @ApiResponse(responseCode = "404", description = "Produtor, laboratório ou propriedade inexistente")
     @ApiResponse(responseCode = "409", description = "Inscrição duplicada ou propriedade de outro produtor")

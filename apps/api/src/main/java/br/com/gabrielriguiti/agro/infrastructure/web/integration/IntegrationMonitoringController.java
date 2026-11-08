@@ -55,6 +55,7 @@ public class IntegrationMonitoringController {
      */
     @GetMapping("/batches/{id}")
     @Operation(summary = "Detalha um lote")
+    @ApiResponse(responseCode = "200", description = "Lote")
     @ApiResponse(responseCode = "404", description = "Lote inexistente")
     public BatchResponse batch(@PathVariable long id) {
         return BatchResponse.from(service.batch(id));
@@ -85,6 +86,7 @@ public class IntegrationMonitoringController {
      */
     @GetMapping("/messages/{id}")
     @Operation(summary = "Detalha uma mensagem", description = "Inclui o payload completo.")
+    @ApiResponse(responseCode = "200", description = "Mensagem com o payload completo")
     @ApiResponse(responseCode = "404", description = "Mensagem inexistente")
     public MessageResponse message(@PathVariable long id) {
         return MessageResponse.from(service.message(id));
@@ -98,6 +100,7 @@ public class IntegrationMonitoringController {
      */
     @PostMapping("/messages/{id}/reprocess")
     @Operation(summary = "Reprocessa uma mensagem da DLQ")
+    @ApiResponse(responseCode = "200", description = "Mensagem recolocada na fila")
     @ApiResponse(responseCode = "404", description = "Mensagem inexistente")
     @ApiResponse(responseCode = "409", description = "A mensagem não está em DEAD")
     public MessageResponse reprocessMessage(@PathVariable long id) {
@@ -112,6 +115,7 @@ public class IntegrationMonitoringController {
      */
     @PostMapping("/batches/{id}/reprocess")
     @Operation(summary = "Reprocessa as mensagens mortas de um lote")
+    @ApiResponse(responseCode = "200", description = "Quantidade de mensagens recolocadas na fila")
     @ApiResponse(responseCode = "404", description = "Lote inexistente")
     public ReprocessResponse reprocessBatch(@PathVariable long id) {
         return new ReprocessResponse(service.reprocessBatch(id));

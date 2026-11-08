@@ -1,0 +1,64 @@
+/*
+ * Tokens de design (cores, tipografia, espaçamento, raios e sombras) extraídos do mini design system.
+ * Um único tema claro; os componentes só usam estas variáveis.
+ */
+:root {
+  /* Primário · verde agro */
+  --pri: #0b7563;
+  --pri-hover: #09604f;
+  --pri-active: #074c3f;
+  --pri-tint: #e5f2ee;
+  --pri-tint-2: #cde6de;
+  --pri-chart: #3e9483;
+
+  /* Neutros */
+  --ink: #1b211e;
+  --ink-2: #535c58;
+  --ink-3: #7d8681;
+  --border: #daded9;
+  --border-input: #c3c9c4;
+  --bg: #f1f2ef;
+  --surface: #ffffff;
+  --surface-head: #f8f9f7;
+  --divider: #eceeea;
+
+  /* Semânticas */
+  --ok: #1d7f46;
+  --ok-bg: #e6f4ea;
+  --warn: #8f5400;
+  --warn-bg: #fdf1dc;
+  --err: #b4322b;
+  --err-bg: #fcebea;
+  --err-border: #f0c1bd;
+  --info: #1c64b0;
+  --info-bg: #e7f0fa;
+
+  /* Tipografia */
+  --font-sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Espaçamento · base 4 */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-12: 48px;
+
+  /* Raios */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 8px;
+  --r-full: 999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(16, 28, 22, 0.06);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 32px rgba(16, 28, 22, 0.16);
+  --ring: 0 0 0 3px rgba(11, 117, 99, 0.18);
+  --focus: 0 0 0 2px #fff, 0 0 0 4px var(--pri);
+}

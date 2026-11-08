@@ -40,6 +40,7 @@ public class LabAnalyticsController {
     @Operation(summary = "Analítico de laboratórios",
             description = "Os filtros incidem sobre os produtores: totalProdutores conta só os que atendem a todos "
                     + "e qtdMinimaProdutores é aplicado a essa contagem. Datas em ISO-8601 (instante UTC).")
+    @ApiResponse(responseCode = "200", description = "Laboratórios com o total de produtores e o valor consolidado")
     @ApiResponse(responseCode = "400", description = "Parâmetro ausente, fora do intervalo ou intervalo invertido")
     public List<LabAnalyticsResponse> analytics(
             @Parameter(description = "Quantidade mínima de produtores filtrados", required = true, example = "2")
