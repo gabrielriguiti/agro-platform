@@ -25,6 +25,13 @@ O multi-select DEVE listar as propriedades disponíveis (e as do produtor em edi
 - **WHEN** o usuário desmarca uma propriedade e marca outra e salva
 - **THEN** o produtor passa a ter o novo conjunto
 
+### Requirement: Orientação com banco vazio
+Quando não houver laboratório ou propriedade disponível, o formulário DEVE avisar junto ao campo correspondente e oferecer link para o cadastro (de laboratório ou de propriedade).
+
+#### Scenario: Banco sem laboratório e sem propriedade
+- **WHEN** o usuário abre o formulário e a API não devolve laboratórios nem propriedades
+- **THEN** aparecem "Nenhum laboratório cadastrado" e "Nenhuma propriedade disponível", cada um com link para o cadastro correspondente
+
 ### Requirement: Erros do servidor
 Erros 400/409 do servidor DEVEM ser exibidos junto aos campos correspondentes ou em um aviso do formulário, sem perder o que foi digitado.
 

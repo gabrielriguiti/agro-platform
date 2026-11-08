@@ -1,11 +1,13 @@
+# analytics-dashboard Specification
+
 ## Purpose
 
 Interagir com o endpoint analítico de laboratórios e visualizar o resultado.
 
-## ADDED Requirements
+## Requirements
 
 ### Requirement: Filtros
-O painel DEVE ter campos para os intervalos de data inicial e final, busca de texto e quantidade mínima de produtores (obrigatória, padrão 1), e só consultar com os filtros válidos.
+O painel DEVE ter campos para o intervalo da data inicial e o intervalo da data final do produtor (de e até, quatro campos), busca de texto nas observações e quantidade mínima de produtores (obrigatória, padrão 1), e só consultar com os filtros válidos (inclusive intervalos não invertidos).
 
 #### Scenario: Quantidade mínima vazia
 - **WHEN** o usuário limpa a quantidade mínima

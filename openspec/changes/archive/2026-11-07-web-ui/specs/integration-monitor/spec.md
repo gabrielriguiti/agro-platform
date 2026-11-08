@@ -31,3 +31,7 @@ O painel DEVE oferecer um formulário para colar ou editar um JSON de lote e env
 #### Scenario: Demonstrar a DLQ
 - **WHEN** o usuário envia o lote de exemplo
 - **THEN** os itens válidos terminam `DONE` e o inválido aparece como `DEAD` com o motivo
+
+#### Scenario: Enviar o exemplo mais de uma vez
+- **WHEN** o usuário carrega o exemplo e o envia de novo depois de já tê-lo enviado
+- **THEN** o novo lote também recebe as quatro mensagens, porque cada carregamento do exemplo gera ids externos novos (reenviar os mesmos ids viraria duplicado e o lote ficaria vazio)
