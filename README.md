@@ -2,7 +2,7 @@
 
 Plataforma full-stack para gestão dos cadastros do ecossistema agrícola — **Produtor**, **Propriedade** e **Laboratório** — com integrador de dados resiliente, motor financeiro extensível e consulta analítica de laboratórios. Projeto de portfólio, desenvolvido change a change com [OpenSpec](openspec/) e decisões registradas em [ADRs](docs/adr/README.md).
 
-> **Estado atual:** API completa (cadastro, motor financeiro, integração resiliente e análise de laboratórios) e interface web (produtores, laboratórios, propriedades, dashboard e monitor). O que falta é a entrega (Docker Compose, CI/CD e publicação), no change `delivery` ([ordem dos changes](docs/ordem-dos-changes.md)).
+> **Demo:** <https://agro.gabrielriguiti.com.br> (leitura aberta; escrever exige a senha enviada em privado, [ADR-0021](docs/adr/0021-demo-publico-com-protecao-no-proxy-e-banco-dedicado.md)). API e Swagger UI: `/swagger-ui.html` em execução local.
 
 ## Stack
 
@@ -11,6 +11,17 @@ Plataforma full-stack para gestão dos cadastros do ecossistema agrícola — **
 - **Monorepo:** pnpm + Turborepo ([ADR-0007](docs/adr/0007-monorepo-pnpm-turborepo-com-api-java.md)): `apps/api`, `apps/web` e `packages/api-client` (tipos gerados do OpenAPI).
 
 ## Como rodar
+
+### Com Docker (um comando)
+
+```bash
+docker compose up --build                              # PostgreSQL, API e web
+SPRING_PROFILES_ACTIVE=demo docker compose up --build  # o mesmo, com dados fictícios
+```
+
+Web em <http://localhost:8081> e Swagger UI em <http://localhost:8080/swagger-ui.html>. O PostgreSQL fica na porta 5433 do host (credenciais de desenvolvimento `agro`/`agro`). O profile `demo` envia ao pipeline um lote com laboratórios, propriedades, produtores e **um item inválido de propósito** (CPF com dígitos errados), que aparece na DLQ do monitor; rodar de novo não duplica nada. `docker compose down -v` apaga o banco.
+
+### Sem Docker para a API
 
 Pré-requisitos: JDK 17, Maven 3.9+, Node 20+, pnpm 10+ e Docker (PostgreSQL local e testes de integração).
 
@@ -261,12 +272,57 @@ Cada "Carregar exemplo" do monitor gera ids externos novos; reenviar o mesmo JSO
 
 Os componentes ficam em `apps/web/src/components/` (tokens em `apps/web/src/styles/tokens.css`). Os testes (`pnpm --filter web test`) usam um `fetch` simulado e cobrem os cenários das specs; o `typecheck` do cliente quebra se a API mudar algo de que o web depende.
 
+## Modelo de dados
+
+```mermaid
+erDiagram
+    LABORATORIES ||--o{ PRODUCERS : "atende"
+    PRODUCERS |o--o{ PROPERTIES : "possui"
+    INTEGRATION_BATCH ||--o{ OUTBOX_MESSAGE : "contém"
+    LABORATORIES { bigint id PK
+        varchar tax_id UK }
+    PRODUCERS { bigint id PK
+        varchar tax_id UK
+        bigint laboratory_id FK
+        timestamptz data_inicial
+        timestamptz data_final }
+    PROPERTIES { bigint id PK
+        varchar tax_id UK
+        bigint producer_id FK "nulo = disponível" }
+    INTEGRATION_BATCH { bigint id PK
+        varchar merge_strategy }
+    OUTBOX_MESSAGE { bigint id PK
+        varchar idempotency_key UK
+        varchar status "PENDING PROCESSING DONE DEAD"
+        int attempts }
+```
+
+## Testes
+
+`pnpm verify` roda tudo (veja [Verificação](#verificação)). Os testes `*Test` são unitários (sem Docker); os `*IT` usam Testcontainers. Os fluxos críticos têm cenários em Gherkin em [docs/bdd/](docs/bdd/README.md), cada um apontando para o teste que o verifica.
+
+## Entrega: CI/CD e publicação
+
+- **CI** ([ci.yml](.github/workflows/ci.yml)): em todo push e pull request roda `pnpm docs:check` (links e índice de ADRs) e `pnpm verify`, publica os relatórios e resume os testes no sumário do job.
+- **CD** ([deploy.yml](.github/workflows/deploy.yml)): em `main` com CI verde, publica as imagens no GHCR com a tag igual ao SHA e implanta na VPS por SSH com chave restrita ao comando `deploy <tag>`. Se a API não ficar saudável em 90 s, a versão anterior é restaurada; reverter é o `workflow_dispatch` com a tag anterior ([ADR-0020](docs/adr/0020-pipeline-ci-cd-com-ghcr-e-ssh-restrito.md)).
+- **Operação:** passo a passo em [docs/deploy.md](docs/deploy.md); os arquivos da VPS ficam em [infra/vps/](infra/vps/). `/actuator/info` mostra o SHA no ar.
+
+## Premissas e limitações
+
+- **Fórmulas financeiras:** o enunciado não as define; são premissas configuráveis ([ADR-0010](docs/adr/0010-motor-financeiro-como-strategy-puro-com-taxas-configuraveis.md)).
+- **Total filtrado** da análise de laboratórios: premissa descrita em [Análise de laboratórios](#análise-de-laboratórios) ([ADR-0016](docs/adr/0016-consulta-analitica-em-sql-dinamico-como-leitura-separada.md)).
+- **Atributos fiscais do produtor** (`dataInicial`, `dataFinal`, observações): assumidos a partir do enunciado.
+- **CPF/CNPJ dos exemplos do enunciado são inválidos** nos dígitos verificadores; o sistema valida de verdade ([ADR-0009](docs/adr/0009-identificacao-fiscal-como-value-object.md)), então os testes e o seed usam inscrições válidas e fictícias.
+- **Sem autenticação na aplicação** ([ADR-0019](docs/adr/0019-sem-autenticacao-nesta-entrega.md)): o demo público é protegido no proxy, só para escrita.
+- **Fora de escopo:** alta disponibilidade, múltiplos ambientes e métricas com Prometheus/Grafana.
+
 ## Documentação e convenções
 
 - Decisões: [docs/adr/](docs/adr/README.md). Commits: [docs/commits.md](docs/commits.md). Specs: [openspec/](openspec/).
+- Decisões deliberadas de escopo: endereço em linha única de texto livre ([ADR-0018](docs/adr/0018-endereco-em-linha-unica.md)) e **sem autenticação** nesta entrega, com o plano para produção descrito ([ADR-0019](docs/adr/0019-sem-autenticacao-nesta-entrega.md)).
 - Identificadores, rotas, tabelas e colunas em inglês; documentação, specs e textos da interface em português.
 - O banco tem `COMMENT ON` em todas as tabelas e colunas ([`V1__schema.sql`](apps/api/src/main/resources/db/migration/V1__schema.sql) e [`V2__external_reference.sql`](apps/api/src/main/resources/db/migration/V2__external_reference.sql)).
 
 ## Uso de IA
 
-Este projeto foi desenvolvido com apoio de assistente de IA (Claude Code) para redigir specs, código, testes e documentação, sob direção e revisão do autor, que responde pelas decisões. Os commits não levam coautoria de IA; o uso é declarado aqui ([ADR-0004](docs/adr/0004-commits-por-change-sem-coautoria-de-ia.md)).
+Este projeto foi desenvolvido com assistência de IA (Claude Code) no fluxo spec-driven do OpenSpec: cada change nasce como proposta, specs, design e tarefas, e só então é implementado e arquivado. As specs e os ADRs guiaram o trabalho e delimitaram o que a IA podia fazer. O autor revisou e responde pelo código, pelos testes e pelas decisões. Os commits não levam coautoria de IA; o uso é declarado aqui ([ADR-0004](docs/adr/0004-commits-por-change-sem-coautoria-de-ia.md)).

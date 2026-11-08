@@ -25,3 +25,7 @@ Cada decisão técnica ou de arquitetura relevante vira um ADR neste diretório,
 | [0015](0015-estrategias-de-reconciliacao.md) | Estratégias de reconciliação | aceito |
 | [0016](0016-consulta-analitica-em-sql-dinamico-como-leitura-separada.md) | Consulta analítica em SQL dinâmico como leitura separada | aceito |
 | [0017](0017-front-simples-com-vite-react-e-cliente-tipado.md) | Front simples com Vite, React e cliente tipado | aceito |
+| [0018](0018-endereco-em-linha-unica.md) | Endereço em linha única, sem estrutura | aceito |
+| [0019](0019-sem-autenticacao-nesta-entrega.md) | Sem autenticação nesta entrega | aceito |
+| [0020](0020-pipeline-ci-cd-com-ghcr-e-ssh-restrito.md) | Pipeline CI/CD com GHCR e SSH restrito | aceito |
+| [0021](0021-demo-publico-com-protecao-no-proxy-e-banco-dedicado.md) | Demo público com proteção no proxy e banco dedicado | aceito |
