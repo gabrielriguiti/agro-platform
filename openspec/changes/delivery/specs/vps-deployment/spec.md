@@ -30,10 +30,14 @@ O workflow NÃO DEVE ter shell na VPS: a chave SSH de publicação DEVE executar
 - **THEN** a VPS o recusa
 
 ### Requirement: Implantação segura
-O script de deploy DEVE trazer as imagens, subir os serviços e conferir o `/actuator/health`; se a API não ficar saudável no prazo, o deploy DEVE falhar com a versão anterior ainda utilizável e o erro registrado.
+O script de deploy DEVE trazer as imagens, subir os serviços e conferir o `/actuator/health`; se os serviços não subirem ou a API não ficar saudável no prazo (90 s depois de subir os serviços), o deploy DEVE falhar com a versão anterior restaurada e o erro registrado.
 
 #### Scenario: Versão com defeito
-- **WHEN** a nova API não fica saudável em 90 s
+- **WHEN** a nova API não fica saudável em 90 s depois de subir os serviços
+- **THEN** o job falha e a versão anterior é restaurada
+
+#### Scenario: Serviços que não sobem
+- **WHEN** o `compose up` falha porque a API ficou não saudável enquanto o Compose esperava por ela
 - **THEN** o job falha e a versão anterior é restaurada
 
 ### Requirement: Segredos fora do repositório

@@ -15,7 +15,7 @@ Adota um padrão de entrega consolidado: imagens no GHCR, usuário de publicaç�
 
 1. **Compose com PostgreSQL, API e web** localmente; na VPS, o Compose usa o PostgreSQL da própria VPS, alcançado pela rede Docker externa (`DB_NETWORK`) e configurado via `.env`.
 2. **CI único (`pnpm verify`)** mais Testcontainers no runner do GitHub, que tem Docker.
-3. **CD em dois estágios:** build e push das imagens (tag = SHA) e deploy por SSH com comando fixo; `flock` evita deploy simultâneo; health check decide sucesso.
+3. **CD em dois estágios:** build e push das imagens (tag = SHA) e deploy por SSH com comando fixo; `flock` evita deploy simultâneo; health check decide sucesso, e se o `compose up` falha ou a API não fica saudável no prazo, o script restaura a versão anterior.
 4. **Hostname único** (`agro.gabrielriguiti.com.br`): o nginx do web repassa `/api` para a API, então sem CORS.
 5. **Proxy:** Caddy versionado em `infra/vps/proxy/` (um `sites/*.caddy` por projeto, TLS automático); `basicauth` só para métodos de escrita.
 6. **Banco:** database `agro_demo` e role próprio, sem privilégios elevados, no PostgreSQL em container da VPS; conexão interna pela rede Docker (`sslmode=disable`, porta publicada só em `127.0.0.1`); `CONNECT` revogado de `PUBLIC` nos demais bancos; TLS `verify-full` apenas se o banco for externo à VPS; connection string apenas em `.env` da VPS.
