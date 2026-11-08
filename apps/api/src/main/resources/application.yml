@@ -18,7 +18,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info
+  info:
+    env:
+      enabled: true
   endpoint:
     health:
       probes:
@@ -43,3 +46,8 @@ agro:
     backoff-base: PT5S
     backoff-max: PT10M
     backoff-jitter: 0.1
+
+# Versão em execução: /actuator/info mostra o SHA do commit (variável APP_VERSION, definida na imagem pelo deploy).
+info:
+  app:
+    version: ${APP_VERSION:dev}

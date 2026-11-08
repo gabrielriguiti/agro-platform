@@ -33,9 +33,10 @@ public class IntegrationConfig {
         return Clock.systemUTC();
     }
 
+    /** {@link java.util.Random} (e não {@code getDefault()}) para funcionar em JREs mínimos, sem o módulo jdk.random. */
     @Bean
     RandomGenerator randomGenerator() {
-        return RandomGenerator.getDefault();
+        return new java.util.Random();
     }
 
     /** Agenda o ciclo do worker em intervalo fixo; uma falha no ciclo não interrompe os seguintes. */
