@@ -6,7 +6,7 @@
 
 ## 2. CI
 
-- [ ] 2.1 Criar o workflow de CI (`pnpm verify`, Testcontainers, relatórios e sumário); verificar execução verde e vermelha de propósito
+- [x] 2.1 Criar o workflow de CI (`pnpm verify`, Testcontainers, relatórios e sumário); verificar execução verde e vermelha de propósito
 - [x] 2.2 Criar `scripts/check-docs.mjs` (links internos e ADRs no índice); verificar que um ADR fora do índice falha
 
 ## 3. CD e VPS
@@ -19,6 +19,6 @@
 
 ## 4. Documentação final
 
-- [ ] 4.1 Escrever o README (visão geral, diagramas, execução, decisões, testes, premissas, uso de IA); verificar em máquina limpa
+- [x] 4.1 Escrever o README (visão geral, diagramas, execução, decisões, testes, premissas, uso de IA); verificar em máquina limpa
 - [x] 4.2 Escrever os cenários BDD em `docs/bdd/` apontando para os testes; verificar o mapeamento
 - [x] 4.3 Registrar os ADRs 0020 e 0021 (0018 e 0019 já são endereço em linha única e sem autenticação); verificar o índice
