@@ -11,10 +11,10 @@
 
 ## 3. CD e VPS
 
-- [ ] 3.1 Criar o workflow de deploy (decisão, build e push no GHCR, SSH restrito, health check, `workflow_dispatch` para reverter); verificar com a VPS
+- [x] 3.1 Criar o workflow de deploy (decisão, build e push no GHCR, SSH restrito, health check, `workflow_dispatch` para reverter); verificar com a VPS
 - [x] 3.2 Criar `infra/vps/` com o script `agro-deploy`, o `docker-compose.prod.yml`, o `agro.caddy` (basicauth na escrita) e o `.env.example` (com `DB_NETWORK`); verificar o script com `shellcheck`
-- [ ] 3.3 Escrever o runbook `docs/deploy.md` (DNS, chave de publicação, banco dedicado e role, registro no proxy, secrets do GitHub); verificar seguindo o passo a passo
-- [ ] 3.4 Primeiro deploy e teste de reversão; verificar `/actuator/health`, `/actuator/info` com o SHA e o 401 na escrita anônima
+- [x] 3.3 Escrever o runbook `docs/deploy.md` (DNS, chave de publicação, banco dedicado e role, registro no proxy, secrets do GitHub); verificar seguindo o passo a passo
+- [x] 3.4 Primeiro deploy e teste de reversão; verificar `/actuator/health`, `/actuator/info` com o SHA e o 401 na escrita anônima
 - [x] 3.5 Criar `infra/vps/proxy/` (compose do Caddy, Caddyfile e `.env.example`); verificar `caddy validate` e a emissão do certificado
 
 ## 4. Documentação final
