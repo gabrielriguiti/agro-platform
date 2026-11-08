@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:   # reaproveitado pelo workflow de deploy, que só publica com o CI verde
+
+permissions:
+  contents: read
 
 jobs:
   verify:
@@ -30,9 +34,33 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Links da documentação
+      - name: Documentação (links e índice de ADRs)
         run: pnpm docs:check
 
       # API (Maven: testes unitários, ArchUnit e *IT com Testcontainers) e web (typecheck, testes e build)
       - name: Verificar tudo
         run: pnpm verify
+
+      # Relatórios e sumário rodam mesmo com testes falhando (if: always()).
+      - name: Sumário dos testes
+        if: always()
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob, xml.etree.ElementTree as ET
+          total = fail = skip = 0
+          for f in glob.glob("apps/api/target/*-reports/TEST-*.xml"):
+              r = ET.parse(f).getroot()
+              total += int(r.get("tests", 0)); fail += int(r.get("failures", 0)) + int(r.get("errors", 0)); skip += int(r.get("skipped", 0))
+          print("## Testes da API")
+          print(f"| Total | Passaram | Falharam | Ignorados |\n|---|---|---|---|\n| {total} | {total - fail - skip} | {fail} | {skip} |")
+          PY
+
+      - name: Relatórios de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-de-teste
+          path: |
+            apps/api/target/surefire-reports
+            apps/api/target/failsafe-reports
+          if-no-files-found: ignore
