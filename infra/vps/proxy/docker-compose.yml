@@ -1,0 +1,30 @@
+# Proxy de borda (Caddy) da VPS: único a publicar 80/443 e a emitir TLS (Let's Encrypt automático).
+# Cada projeto registra um bloco em ./sites/*.caddy e entra na rede "proxy". Ver docs/deploy.md, passo 5.
+name: edge
+
+services:
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      AGRO_DEMO_USER: ${AGRO_DEMO_USER}
+      AGRO_DEMO_HASH: ${AGRO_DEMO_HASH}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/etc/caddy/sites:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks: [proxy]
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  proxy:
+    name: proxy

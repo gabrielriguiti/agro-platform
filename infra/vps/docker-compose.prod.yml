@@ -1,0 +1,47 @@
+# Compose de produção na VPS. Sem portas publicadas: o proxy de borda alcança o agro-web pela rede do proxy.
+# Variáveis (arquivo .env, ver .env.example): AGRO_TAG vem do agro-deploy; o restante, do .env.
+name: agro
+
+services:
+  agro-api:
+    image: ghcr.io/${GHCR_OWNER}/agro-api:${AGRO_TAG}
+    container_name: agro-api
+    restart: unless-stopped
+    environment:
+      DB_URL: ${DB_URL}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-demo}
+      JAVA_TOOL_OPTIONS: "-Xmx256m -XX:+ExitOnOutOfMemoryError"
+    mem_limit: 512m
+    networks: [agro-net, db]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080 && printf \"GET /actuator/health HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q UP <&3'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  agro-web:
+    image: ghcr.io/${GHCR_OWNER}/agro-web:${AGRO_TAG}
+    container_name: agro-web
+    restart: unless-stopped
+    environment:
+      API_HOST: agro-api
+    mem_limit: 64m
+    depends_on:
+      agro-api:
+        condition: service_healthy
+    networks: [agro-net, proxy]
+
+networks:
+  agro-net:
+    name: agro-net
+  proxy:
+    # Rede já existente do proxy de borda compartilhado (nome em PROXY_NETWORK).
+    name: ${PROXY_NETWORK}
+    external: true
+  db:
+    # Rede Docker do container Postgres da VPS (nome em DB_NETWORK). O banco não publica porta fora do localhost.
+    name: ${DB_NETWORK}
+    external: true

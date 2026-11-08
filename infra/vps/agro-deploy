@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Script de deploy da VPS. Instalado em /usr/local/bin/agro-deploy e preso à chave de publicação via
+# command= no authorized_keys: o workflow só consegue pedir "deploy <tag>".
+# Uso direto (na VPS): agro-deploy deploy <tag>
+set -euo pipefail
+
+APP_DIR="${AGRO_DIR:-/opt/agro}"
+HEALTH_TIMEOUT="${AGRO_HEALTH_TIMEOUT:-90}"
+LOCK_FILE="$APP_DIR/.deploy.lock"
+
+# Com a chave restrita, o comando pedido chega em SSH_ORIGINAL_COMMAND.
+requested="${SSH_ORIGINAL_COMMAND:-${*:-}}"
+
+if [[ ! "$requested" =~ ^deploy\ ([0-9a-f]{7,40})$ ]]; then
+  echo "Comando recusado. Uso: deploy <tag> (SHA em hexadecimal)" >&2
+  exit 2
+fi
+tag="${BASH_REMATCH[1]}"
+
+cd "$APP_DIR"
+compose=(docker compose -p agro -f docker-compose.prod.yml --env-file .env)
+
+# Evita dois deploys simultâneos: o segundo espera até 5 min.
+exec 9>"$LOCK_FILE"
+flock -w 300 9 || { echo "Outro deploy em andamento" >&2; exit 3; }
+
+previous="$(cat .current-tag 2>/dev/null || true)"
+echo "[agro-deploy] $(date -u +%FT%TZ) implantando $tag (anterior: ${previous:-nenhuma})"
+
+wait_healthy() {
+  local deadline=$((SECONDS + HEALTH_TIMEOUT)) status
+  while (( SECONDS < deadline )); do
+    status="$(docker inspect -f '{{.State.Health.Status}}' agro-api 2>/dev/null || echo starting)"
+    [[ "$status" == "healthy" ]] && return 0
+    sleep 3
+  done
+  return 1
+}
+
+start_version() {
+  AGRO_TAG="$1" "${compose[@]}" up -d --remove-orphans
+}
+
+AGRO_TAG="$tag" "${compose[@]}" pull
+start_version "$tag"
+
+if wait_healthy; then
+  echo "$tag" > .current-tag
+  [[ -n "$previous" && "$previous" != "$tag" ]] && echo "$previous" > .previous-tag
+  echo "[agro-deploy] $tag no ar"
+  exit 0
+fi
+
+echo "[agro-deploy] API não ficou saudável em ${HEALTH_TIMEOUT}s; últimos logs:" >&2
+docker logs --tail 40 agro-api >&2 || true
+if [[ -n "$previous" ]]; then
+  echo "[agro-deploy] restaurando $previous" >&2
+  start_version "$previous" || true
+  wait_healthy || echo "[agro-deploy] ATENÇÃO: a versão anterior também não ficou saudável" >&2
+fi
+exit 1

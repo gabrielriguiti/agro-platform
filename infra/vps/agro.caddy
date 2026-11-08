@@ -1,0 +1,14 @@
+# Bloco do Caddy para o demo. Registrado no proxy de borda com o script de borda (valida antes do reload).
+# O hash da senha NÃO fica no repositório: vem das variáveis de ambiente do Caddy
+# AGRO_DEMO_USER e AGRO_DEMO_HASH (gerado com `caddy hash-password`). Ver docs/deploy.md.
+agro.gabrielriguiti.com.br {
+	encode gzip
+
+	# Escrita exige autenticação básica; leitura (GET/HEAD) fica aberta. ADR-0021.
+	@escrita method POST PUT PATCH DELETE
+	basic_auth @escrita {
+		{$AGRO_DEMO_USER} {$AGRO_DEMO_HASH}
+	}
+
+	reverse_proxy agro-web:80
+}

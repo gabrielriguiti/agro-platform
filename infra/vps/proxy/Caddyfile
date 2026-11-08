@@ -1,0 +1,2 @@
+# Cada site vive em sites/<projeto>.caddy.
+import /etc/caddy/sites/*.caddy
