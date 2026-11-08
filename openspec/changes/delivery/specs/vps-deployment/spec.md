@@ -58,8 +58,12 @@ O proxy DEVE exigir autenticação básica para métodos que alteram dados (POST
 - **THEN** o proxy responde 401
 
 ### Requirement: Banco dedicado
-O demo DEVE usar um database e um role exclusivos, sem superusuário, com conexão TLS verificada.
+O demo DEVE usar um database e um role exclusivos, sem superusuário, com conexão TLS verificada quando o banco é externo à VPS e conexão interna pela rede Docker, sem porta pública, quando está na mesma VPS.
 
 #### Scenario: Escopo do role
 - **WHEN** o role do demo tenta acessar outro database
 - **THEN** o banco nega
+
+#### Scenario: Bancos herdados
+- **WHEN** o role do demo tenta conectar em `appdb`, `postgres` ou `template1`
+- **THEN** o banco nega, porque o `CONNECT` foi revogado de `PUBLIC`

@@ -7,7 +7,7 @@ O enunciado exige entrega em repositório do GitHub com README (diagrama de arqu
 - Execução local com `docker compose up` (PostgreSQL, API e web) e seed opcional com dados fictícios.
 - Pipeline de CI no GitHub Actions: `pnpm verify`, testes com Testcontainers e verificação da documentação.
 - Pipeline de CD: imagens no GHCR com tag igual ao SHA, deploy por SSH restrito na VPS, health check, reversão manual.
-- Publicação em `agro.gabrielriguiti.com.br` atrás do proxy de borda compartilhado, com proteção de escrita e banco dedicado.
+- Publicação em `agro.gabrielriguiti.com.br` atrás de um Caddy de borda versionado no repositório, com proteção de escrita e banco dedicado.
 - README completo, diagramas Mermaid, cenários BDD e seção de uso de IA.
 
 ## Capabilities
@@ -22,12 +22,12 @@ O enunciado exige entrega em repositório do GitHub com README (diagrama de arqu
 
 ## Impact
 
-`docker-compose.yml`, Dockerfiles de `apps/api` e `apps/web`, `.github/workflows/`, `infra/vps/` (scripts e arquivo do proxy), README e `docs/`. Depende de todos os outros changes.
+`docker-compose.yml`, Dockerfiles de `apps/api` e `apps/web`, `.github/workflows/`, `infra/vps/` (scripts, arquivo do site e `proxy/`), README e `docs/`. Depende de todos os outros changes.
 
-**Premissas:** o repositório é público, então nenhum segredo, senha, IP ou nome de host interno vai para ele; segredos ficam nos secrets do GitHub e no `.env` da VPS. A VPS de aplicações e o PostgreSQL de desenvolvimento do autor já existem; o deploy usa um usuário de publicação restrito e o proxy compartilhado. A senha do demo é enviada aos avaliadores em privado e não aparece no README.
+**Premissas:** o repositório é público, então nenhum segredo, senha, IP ou nome de host interno vai para ele; segredos ficam nos secrets do GitHub e no `.env` da VPS. A VPS de aplicações já existe; o PostgreSQL e o proxy de borda são criados nela pelo runbook (`infra/vps/`); o deploy usa um usuário de publicação restrito. A senha do demo é enviada aos avaliadores em privado e não aparece no README.
 
 **Não objetivos:** alta disponibilidade, múltiplos ambientes, monitoramento com Prometheus/Grafana, certificados gerenciados fora do proxy.
 
 ## Documentação
 
-ADRs previstos: 0018 Pipeline CI/CD com GHCR e SSH restrito; 0019 Demo público com proteção no proxy e banco dedicado. Runbook `docs/deploy.md`.
+ADRs previstos: 0020 Pipeline CI/CD com GHCR e SSH restrito; 0021 Demo público com proteção no proxy e banco dedicado. Runbook `docs/deploy.md`.
