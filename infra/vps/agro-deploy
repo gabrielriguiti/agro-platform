@@ -42,16 +42,19 @@ start_version() {
 }
 
 AGRO_TAG="$tag" "${compose[@]}" pull
-start_version "$tag"
+# O "up -d" espera o health check das dependências (depends_on: service_healthy) e falha se a API ficar
+# não saudável. Essa falha não pode encerrar o script (set -e): ela é o sinal para restaurar a anterior.
+started=1
+start_version "$tag" || started=0
 
-if wait_healthy; then
+if (( started )) && wait_healthy; then
   echo "$tag" > .current-tag
   [[ -n "$previous" && "$previous" != "$tag" ]] && echo "$previous" > .previous-tag
   echo "[agro-deploy] $tag no ar"
   exit 0
 fi
 
-echo "[agro-deploy] API não ficou saudável em ${HEALTH_TIMEOUT}s; últimos logs:" >&2
+echo "[agro-deploy] a versão $tag não ficou saudável (prazo de ${HEALTH_TIMEOUT}s após subir os serviços); últimos logs:" >&2
 docker logs --tail 40 agro-api >&2 || true
 if [[ -n "$previous" ]]; then
   echo "[agro-deploy] restaurando $previous" >&2
