@@ -9,7 +9,7 @@
     "test": "turbo run test",
     "typecheck": "turbo run typecheck",
     "verify": "turbo run verify",
-    "docs:check": "node scripts/check-docs-links.mjs"
+    "docs:check": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
     "turbo": "2.5.8"
